@@ -1,11 +1,13 @@
-require 'redshift'
+require '../redshift/redshift'
 class PhotoBucket
   def initialize(element)
     @element = element
+    @photo_container = element['.photo_table'].first
     @req = Request.new
-    # @req.upon(:request)  { self.show_loader }
-    # @req.upon(:success)  { self.hide_loader }
-    # @req.upon(:response) { self.load_photos }
+    c = self
+    @req.upon(:request)  { c.show_loader }
+    @req.upon(:success)  { c.hide_loader }
+    @req.upon(:response) {|response| c.load_photos(response) }
     
     self.load_initial_photos
   end
@@ -22,8 +24,10 @@ class PhotoBucket
     @element['#loading'].styles[:display] = 'block'
   end
   
-  def load_photos
-    
+  def load_photos(response)
+    puts response
+    @photo_container.empty!
+    @photo_container.insert(response[:text])
   end
 end
 
