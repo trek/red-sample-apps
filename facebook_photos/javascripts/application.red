@@ -1,13 +1,16 @@
-require '../redshift/redshift'
+require '../redshift/redshift.red'
+
 class PhotoBucket
   def initialize(element)
     @element = element
+    @loader  = @element['#loading']
     @photo_container = element['.photo_table'].first
     @req = Request.new
-    c = self
-    @req.upon(:request)  { c.show_loader }
-    @req.upon(:success)  { c.hide_loader }
-    @req.upon(:response) {|response| c.load_photos(response) }
+    @req.upon(:request)  { self.show_loader }
+    @req.upon(:success)  { self.hide_loader }
+    @req.upon(:response) {|response| self.load_photos(response) }
+    
+    @element.listen(:click)       { |element,event| self.clicked(element,event)}
     
     self.load_initial_photos
   end
@@ -17,17 +20,40 @@ class PhotoBucket
   end
   
   def hide_loader
-    @element['#loading'].styles[:display] = 'none'
+    @loader.styles[:display] = 'none'
   end
   
   def show_loader
-    @element['#loading'].styles[:display] = 'block'
+    @loader.styles[:display] = 'block'
   end
   
   def load_photos(response)
-    puts response
     @photo_container.empty!
-    @photo_container.insert(response[:text])
+    @photo_container.html = response.text
+  end
+  
+  def show_photo(location)
+    a = location.properties[:src].split('/')
+    a[2] = 'full'
+    a = a.join('/')
+    @photo_container.empty!
+    @photo_container.insert(Element.new('div', {:class => 'full photo'}).insert(Element.new('img', {:src => a})))
+  end
+  
+  def page_to(location)
+    @req.execute({:url => location.properties[:href]})
+    @element['.pagination .current'].first.remove_class('current')
+    location.parent.add_class('current')
+  end
+  
+  def clicked(element,event)
+    event.kill!
+    container = event.target.parent.parent
+    if(container.has_class?('pages'))
+      self.page_to(event.target)
+    elsif(container.has_class?('photo'))
+      self.show_photo(event.target)
+    end
   end
 end
 
