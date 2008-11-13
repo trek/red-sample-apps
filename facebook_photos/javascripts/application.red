@@ -1,4 +1,4 @@
-require '../redshift/redshift.red'
+require 'redshift'
 
 class PhotoBucket
   def initialize(element)

@@ -1,5 +1,6 @@
-$:.unshift(File.join(File.dirname(__FILE__), '/lib'))
-require 'herring_rack'
+require 'herring'
+
+Rack::Herring::HerringRoot = File.dirname(__FILE__)
 
 use Rack::ShowExceptions
 run Rack::Herring.new
