@@ -1,0 +1,11 @@
+.workspace_view {
+  height: 100%; }
+
+.view {
+  height: 100%;
+  float: left; }
+  .view .split_view {
+    height: 100%; }
+
+p {
+  text_decoration: none; }

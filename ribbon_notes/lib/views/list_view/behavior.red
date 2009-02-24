@@ -1,0 +1,2 @@
+class ListView < View
+end
